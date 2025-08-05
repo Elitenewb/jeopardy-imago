@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Classroom Jeopardy</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link
+      rel="icon"
+      href="https://cdn.glitch.global/d877a8fa-1416-4387-8a4f-d4360ea0fd8b/Jeopardy%20icon.png?v=1716903929240"
+      type="image/png"
+    />
+  </head>
+  <body>
+    <div
+      id="dropZone"
+      style="
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        margin: 10px;
+      "
+    >
+      Drop your CSV file here or click to upload
+      <input type="file" id="fileInput" style="display: none" accept=".csv" />
+    </div>
+
+    <div id="teamNameModal" class="modal">
+      <div class="modal-content">
+        <h2>Enter Team Names</h2>
+        <input id="teamName1" type="text" placeholder="Team 1" /><br /><br />
+        <input id="teamName2" type="text" placeholder="Team 2" /><br /><br />
+        <input id="teamName3" type="text" placeholder="Team 3" /><br /><br />
+        <input id="teamName4" type="text" placeholder="Team 4" /><br /><br />
+        <button id="submitTeamNames">Start Game</button>
+      </div>
+    </div>
+
+    <div id="jeopardyBoard" class="board" style="display: none"></div>
+
+    <div
+      id="scoreBoard"
+      style="text-align: center; margin-top: 20px; display: none"
+    >
+      <div id="team1" class="team">
+        <h2>
+          <span class="teamNameSpan">Team 1</span>: <span id="score1">0</span>
+        </h2>
+        <button class="score-btn" onclick="incrementScore(1)">+</button>
+      </div>
+      <div id="team2" class="team">
+        <h2>
+          <span class="teamNameSpan">Team 2</span>: <span id="score2">0</span>
+        </h2>
+        <button class="score-btn" onclick="incrementScore(2)">+</button>
+      </div>
+      <div id="team3" class="team">
+        <h2>
+          <span class="teamNameSpan">Team 3</span>: <span id="score3">0</span>
+        </h2>
+        <button class="score-btn" onclick="incrementScore(3)">+</button>
+      </div>
+      <div id="team4" class="team">
+        <h2>
+          <span class="teamNameSpan">Team 4</span>: <span id="score4">0</span>
+        </h2>
+        <button class="score-btn" onclick="incrementScore(4)">+</button>
+      </div>
+    </div>
+    <button id="fullscreenBtn" style="display: none">[full]</button>
+
+    <div id="questionModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <img
+          id="questionImage"
+          src=""
+          alt="Question Image"
+          style="max-width: 100%; height: auto; display: none"
+        />
+        <iframe
+          id="questionVideo"
+          width="560"
+          height="315"
+          src=""
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+        <p id="questionText"></p>
+      </div>
+    </div>
+
+    <!-- Final Jeopardy Wager Modal -->
+    <div id="finalWagerModal" class="modal">
+      <div class="modal-content">
+        <h2>Final Jeopardy Wager</h2>
+        <p
+          id="finalWagerCategory"
+          style="font-size: 1.5em; margin-bottom: 20px"
+        ></p>
+        <div id="wagerInputs"></div>
+        <button id="submitWagers">Submit Wagers</button>
+      </div>
+    </div>
+
+    <!-- Final Jeopardy Question Modal -->
+    <div id="finalQuestionModal" class="modal">
+      <div class="modal-content">
+        <h2>Final Jeopardy Question</h2>
+        <img
+          id="finalQuestionImage"
+          src=""
+          alt="Final Question Image"
+          style="max-width: 100%; height: auto; display: none"
+        />
+        <iframe
+          id="finalQuestionVideo"
+          width="560"
+          height="315"
+          src=""
+          style="display: none"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+        <p id="finalQuestionText"></p>
+        <button id="revealAnswersBtn">Reveal Answers</button>
+      </div>
+    </div>
+
+    <!-- Final Jeopardy Judging Modal -->
+    <div id="finalJudgingModal" class="modal">
+      <div class="modal-content">
+        <h2>Judging Final Answers</h2>
+        <p id="judgeTeamName"></p>
+        <p>Wager: <span id="judgeWager"></span></p>
+        <button id="correctBtn">Correct</button>
+        <button id="incorrectBtn">Incorrect</button>
+      </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div id="winnerModal" class="modal">
+      <div class="modal-content">
+        <h2 id="winnerName"></h2>
+        <img
+          id="winnerGif"
+          src="https://cdn.glitch.global/1bd2e839-68b3-468a-807b-0a50b05b3f5b/321949050773200897-ezgif.com-optimize.gif?v=1733616257229"
+          alt="Winner GIF"
+          style="max-width: 100%; height: auto; margin-top: 20px"
+        />
+      </div>
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
+      defer
+    ></script>
+    <script src="script.js" defer></script>
+    <audio
+      id="questionSound"
+      src="https://cdn.glitch.global/72d1488f-d216-4f65-8125-bc425bedae48/Question%20Sound.mp3?v=1715047119937"
+    ></audio>
+    <audio
+      id="scoreSound"
+      src="https://cdn.glitch.global/72d1488f-d216-4f65-8125-bc425bedae48/Add%20Score.mp3?v=1715047126912"
+    ></audio>
+    <audio
+      id="winnerSound"
+      src="https://cdn.glitch.global/1bd2e839-68b3-468a-807b-0a50b05b3f5b/Winner.mp3?v=1733557616847"
+    ></audio>
+  </body>
+</html>
