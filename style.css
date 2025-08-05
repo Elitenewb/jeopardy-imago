@@ -1,5 +1,5 @@
 body {
-  background-image: url("https://cdn.glitch.global/a371b608-f1c3-4036-b373-0c85a90c17aa/IGB%20Quiz%20Show.jpg?v=1731046349486");
+  background-image: url("assets/Background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -66,7 +66,7 @@ body {
 }
 
 .category-header {
-  background-image: url("https://cdn.glitch.global/d877a8fa-1416-4387-8a4f-d4360ea0fd8b/Cat Back.png?v=1717004740543");
+  background-image: url("assets/Cat Back.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
