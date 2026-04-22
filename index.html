@@ -154,6 +154,27 @@
       </div>
     </div>
 
+    <script>
+      (function () {
+        var ready = false;
+        var queue = [];
+        window.onYouTubeIframeAPIReady = function () {
+          ready = true;
+          while (queue.length) {
+            try {
+              queue.shift()();
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        };
+        window.whenYTReady = function (fn) {
+          if (ready) fn();
+          else queue.push(fn);
+        };
+      })();
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
       defer

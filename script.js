@@ -18,6 +18,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const start = parseOptionalSeconds(startSeconds);
     const end = parseOptionalSeconds(endSeconds);
     params.set("autoplay", "1");
+    params.set("enablejsapi", "1");
+    params.set("rel", "0");
+    params.set("modestbranding", "1");
+    params.set("playsinline", "1");
+    if (window.location && window.location.origin) {
+      params.set("origin", window.location.origin);
+    }
 
     if (start !== null) {
       params.set("start", String(start));
@@ -28,6 +35,127 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const queryString = params.toString();
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  }
+
+  var questionPlayer = null;
+  var finalPlayer = null;
+
+  function createYouTubePlayer(iframeId, onEndedCallback) {
+    return new Promise(function (resolve) {
+      var whenReady = window.whenYTReady;
+      if (typeof whenReady !== "function") {
+        resolve(null);
+        return;
+      }
+      whenReady(function () {
+        if (!window.YT || !window.YT.Player) {
+          resolve(null);
+          return;
+        }
+        var player = new window.YT.Player(iframeId, {
+          events: {
+            onReady: function () {
+              resolve(player);
+            },
+            onStateChange: function (event) {
+              if (event.data === window.YT.PlayerState.ENDED) {
+                onEndedCallback();
+              }
+            },
+          },
+        });
+      });
+    });
+  }
+
+  function safeStopPlayer(player) {
+    if (player && typeof player.stopVideo === "function") {
+      try {
+        player.stopVideo();
+      } catch (e) {
+        /* noop */
+      }
+    }
+  }
+
+  function hideVideoIframe(iframe, afterHidden) {
+    iframe.style.opacity = "0";
+    setTimeout(function () {
+      iframe.style.display = "none";
+      iframe.style.opacity = "1";
+      if (typeof afterHidden === "function") afterHidden();
+    }, 280);
+  }
+
+  function triggerQuestionTextFocus(textEl) {
+    if (!textEl) return;
+    textEl.classList.remove("question-text-focus");
+    void textEl.offsetWidth;
+    textEl.classList.add("question-text-focus");
+  }
+
+  function buildLoadVideoOptions(videoId, startSeconds, endSeconds) {
+    var startSec = parseOptionalSeconds(startSeconds);
+    var endSec = parseOptionalSeconds(endSeconds);
+    var opts = { videoId: videoId };
+    if (startSec !== null) opts.startSeconds = startSec;
+    if (endSec !== null) opts.endSeconds = endSec;
+    return opts;
+  }
+
+  function openQuestionVideo(videoId, startSeconds, endSeconds) {
+    var iframe = document.getElementById("questionVideo");
+    var textEl = document.getElementById("questionText");
+    iframe.style.opacity = "1";
+    iframe.style.display = "block";
+
+    function onVideoEnded() {
+      hideVideoIframe(iframe, function () {
+        triggerQuestionTextFocus(textEl);
+      });
+    }
+
+    if (
+      questionPlayer &&
+      typeof questionPlayer.loadVideoById === "function"
+    ) {
+      questionPlayer.loadVideoById(
+        buildLoadVideoOptions(videoId, startSeconds, endSeconds)
+      );
+      return;
+    }
+
+    iframe.src = buildYouTubeEmbedUrl(videoId, startSeconds, endSeconds);
+    createYouTubePlayer("questionVideo", onVideoEnded).then(function (player) {
+      if (player) questionPlayer = player;
+    });
+  }
+
+  function openFinalVideo(videoId, startSeconds, endSeconds) {
+    var iframe = document.getElementById("finalQuestionVideo");
+    var textEl = document.getElementById("finalQuestionText");
+    iframe.style.opacity = "1";
+    iframe.style.display = "block";
+
+    function onVideoEnded() {
+      hideVideoIframe(iframe, function () {
+        triggerQuestionTextFocus(textEl);
+      });
+    }
+
+    if (finalPlayer && typeof finalPlayer.loadVideoById === "function") {
+      finalPlayer.loadVideoById(
+        buildLoadVideoOptions(videoId, startSeconds, endSeconds)
+      );
+      return;
+    }
+
+    iframe.src = buildYouTubeEmbedUrl(videoId, startSeconds, endSeconds);
+    createYouTubePlayer("finalQuestionVideo", onVideoEnded).then(function (
+      player
+    ) {
+      if (player) finalPlayer = player;
+    });
   }
 
   var dropZone = document.getElementById("dropZone");
@@ -193,12 +321,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 questionVideo.style.display = "none";
               } else if (question.video) {
                 questionImage.style.display = "none";
-                questionVideo.src = buildYouTubeEmbedUrl(
+                openQuestionVideo(
                   question.video,
                   question.start,
                   question.end
                 );
-                questionVideo.style.display = "block";
               } else {
                 questionImage.style.display = "none";
                 questionVideo.style.display = "none";
@@ -326,12 +453,11 @@ document.addEventListener("DOMContentLoaded", function () {
       finalVideo.style.display = "none";
     } else if (finalJeopardyQuestion.video) {
       finalImage.style.display = "none";
-      finalVideo.src = buildYouTubeEmbedUrl(
+      openFinalVideo(
         finalJeopardyQuestion.video,
         finalJeopardyQuestion.start,
         finalJeopardyQuestion.end
       );
-      finalVideo.style.display = "block";
     } else {
       finalImage.style.display = "none";
       finalVideo.style.display = "none";
@@ -341,6 +467,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.getElementById("revealAnswersBtn").onclick = function () {
+    safeStopPlayer(finalPlayer);
+    var finalVideoEl = document.getElementById("finalQuestionVideo");
+    if (finalVideoEl) {
+      finalVideoEl.style.display = "none";
+      finalVideoEl.style.opacity = "1";
+    }
     document.getElementById("finalQuestionModal").style.display = "none";
     // Sort teams by score ascending
     let scoresArray = [];
@@ -438,12 +570,16 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   function closeQuestionModal() {
-    // If we had a question open and ready
-    // If the dataset says the question was used, increment usedQuestions
     if (modal.dataset.questionUsed === "true") {
       usedQuestions++;
       modal.dataset.questionUsed = "";
       checkAllQuestionsUsed();
+    }
+    safeStopPlayer(questionPlayer);
+    var questionVideoEl = document.getElementById("questionVideo");
+    if (questionVideoEl) {
+      questionVideoEl.style.display = "none";
+      questionVideoEl.style.opacity = "1";
     }
     modal.style.display = "none";
   }
