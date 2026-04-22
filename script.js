@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams();
     const start = parseOptionalSeconds(startSeconds);
     const end = parseOptionalSeconds(endSeconds);
+    params.set("autoplay", "1");
 
     if (start !== null) {
       params.set("start", String(start));
