@@ -13,20 +13,46 @@ body {
 /* Fullscreen Button Style */
 #fullscreenBtn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px 10px;
-  font-size: 16px;
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 0;
+  line-height: 1;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 50%;
   cursor: pointer;
   z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
-#fullscreenBtn:hover {
+#fullscreenBtn::before {
+  content: "\26F6";
+  font-size: 20px;
+  line-height: 1;
+  color: #fff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #fullscreenBtn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+
+#fullscreenBtn:active {
   background-color: #0056b3;
+  transform: translateY(1px) scale(0.96);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Drop Zone */
@@ -37,11 +63,34 @@ body {
   padding: 20px;
   text-align: center;
   margin: 10px;
-  transition: background-color 0.3s ease;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #dropZone:hover {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
 }
 
 #dropZone.dragover {
   background-color: rgba(255, 255, 255, 0.2);
+  border-color: #1e90ff;
+  animation: dropZonePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dropZonePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(30, 144, 255, 0);
+  }
 }
 
 /* Board Layout */
@@ -73,16 +122,24 @@ body {
   border: 2px solid white;
   color: white;
   text-align: center;
-  padding: 5px; /* Smaller from IMAGO */
-  min-width: 100px; /* Smaller to match grid */
-  height: 70px; /* From IMAGO */
+  padding: 6px 8px;
+  min-width: 100px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   box-sizing: border-box;
-  border-radius: 5px;
-  font-size: 16px; /* Smaller from IMAGO */
+  border-radius: 6px;
+  font-size: clamp(12px, 1.1vw + 6px, 18px);
+  line-height: 1.15;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .questions-container {
@@ -92,52 +149,114 @@ body {
 }
 
 .cell {
-  padding: 0; /* Removed padding for fixed height */
-  background-color: #007bff;
+  padding: 0;
+  background: linear-gradient(180deg, #1e90ff 0%, #007bff 55%, #0062cc 100%);
   color: white;
-  font-size: 18px; /* Smaller from IMAGO */
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-align: center;
   cursor: pointer;
-  border: 2px solid black;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  height: 50px; /* Fixed height from IMAGO */
-  display: flex; /* Added from IMAGO */
-  align-items: center; /* Added from IMAGO */
-  justify-content: center; /* Added from IMAGO */
-  margin-top: 5px; /* Spacing from IMAGO */
+  border: 2px solid #0b1a2b;
+  border-radius: 6px;
+  transition: background-color 0.25s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.25),
+    0 3px 8px rgba(0, 0, 0, 0.35);
 }
 
-.cell:hover {
-  background-color: #0056b3;
+@media (hover: hover) and (pointer: fine) {
+  .cell:hover {
+    background: linear-gradient(180deg, #2b9bff 0%, #0a6fe0 60%, #0056b3 100%);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+      0 6px 14px rgba(0, 0, 0, 0.45);
+    filter: brightness(1.05);
+  }
+
+  .cell.used:hover {
+    background: linear-gradient(180deg, #d4d4d4 0%, #bcbcbc 100%);
+    transform: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.12);
+    filter: none;
+  }
+}
+
+.cell:active {
+  background: linear-gradient(180deg, #0a6fe0 0%, #0056b3 60%, #003f85 100%);
+  transform: scale(0.97);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.45),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.95);
 }
 
 .cell.used {
-  background-color: #cccccc;
+  background: linear-gradient(180deg, #d4d4d4 0%, #bcbcbc 100%);
+  color: rgba(255, 255, 255, 0.75);
   cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.12);
+  text-shadow: none;
+  filter: none;
+}
+
+.cell.used:active {
+  background: linear-gradient(180deg, #d4d4d4 0%, #bcbcbc 100%);
+  transform: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.12);
+  filter: none;
 }
 
 /* Scoreboard */
 #scoreBoard {
   position: fixed;
-  bottom: 0; /* From IMAGO */
-  width: 100%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: auto;
   display: flex;
   justify-content: space-around;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
   z-index: 1000;
-  padding: 5px 0; /* Smaller padding from IMAGO */
+  padding: 8px 70px 8px 12px;
+  box-sizing: border-box;
 }
 
 .team {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 5px; /* Smaller from IMAGO */
-  font-size: 16px; /* Smaller from IMAGO */
+  gap: 10px;
+  margin-bottom: 5px;
+  font-size: 16px;
   color: #ffffff;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px 20px;
-  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.7)
+  );
+  padding: 8px 16px;
+  border-radius: 10px;
+  min-width: 0;
+  max-width: 280px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .team h2 {
@@ -146,18 +265,35 @@ body {
 }
 
 .score-btn {
-  padding: 5px 10px; /* Smaller from IMAGO */
-  font-size: 14px; /* Smaller from IMAGO */
-  background-color: #007bff;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  background: linear-gradient(180deg, #1e90ff, #0062cc);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-.score-btn:hover {
-  background-color: #0056b3;
+@media (hover: hover) and (pointer: fine) {
+  .score-btn:hover {
+    background: linear-gradient(180deg, #2b9bff, #0056b3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    filter: brightness(1.05);
+  }
+}
+
+.score-btn:active {
+  background: linear-gradient(180deg, #0a6fe0, #003f85);
+  transform: scale(0.96);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.95);
 }
 
 /* Modals - General Styles */
@@ -171,6 +307,7 @@ body {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.7);
+  animation: modalFadeIn 220ms ease-out both;
 }
 
 .modal-content {
@@ -179,12 +316,82 @@ body {
   padding: 20px;
   border: 3px solid #888;
   width: 80%;
-  max-width: 800px; /* From IMAGO */
+  max-width: 800px;
   max-height: 90vh;
   overflow: auto;
   text-align: center;
-  border-radius: 10px;
-  position: relative; /* From IMAGO for close button positioning */
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+  animation: modalZoomIn 280ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+}
+
+@keyframes modalZoomIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ctaGlow {
+  0%,
+  100% {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35),
+      0 0 0 rgba(30, 144, 255, 0);
+  }
+  50% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4),
+      0 0 18px rgba(30, 144, 255, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .modal-content,
+  #dropZone,
+  #dropZone.dragover,
+  #teamNameModal button,
+  #finalWagerModal #submitWagers,
+  #finalQuestionModal #revealAnswersBtn {
+    animation: none;
+  }
+
+  .cell,
+  .cell:active,
+  .score-btn,
+  .score-btn:active,
+  #fullscreenBtn,
+  #fullscreenBtn:active,
+  #teamNameModal button,
+  #teamNameModal button:active,
+  #finalWagerModal #submitWagers,
+  #finalWagerModal #submitWagers:active,
+  #finalQuestionModal #revealAnswersBtn,
+  #finalQuestionModal #revealAnswersBtn:active,
+  #finalJudgingModal button,
+  #finalJudgingModal button:active,
+  .close:active {
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Modal Content Styles for Video Questions - Added from IMAGO */
@@ -209,10 +416,22 @@ body {
   margin-top: 0; /* Adjusted since we're using absolute positioning */
 }
 
-.close:hover,
 .close:focus {
   color: #000;
   text-decoration: none;
+  outline: none;
+}
+
+.close:active {
+  color: #000;
+  transform: scale(0.9);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .close:hover {
+    color: #000;
+    text-decoration: none;
+  }
 }
 
 /* Question Modal */
@@ -276,12 +495,28 @@ body {
   color: #fff;
   font-size: 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
+  animation: ctaGlow 2.6s ease-in-out infinite;
 }
 
-#teamNameModal button:hover {
+@media (hover: hover) and (pointer: fine) {
+  #teamNameModal button:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+}
+
+#teamNameModal button:active {
   background: #0056b3;
+  transform: scale(0.97);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.95);
+  animation: none;
 }
 
 /* Final Wager Modal */
@@ -313,14 +548,30 @@ body {
   padding: 10px 20px;
   background: #007bff;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   color: #fff;
   font-size: 20px;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
+  animation: ctaGlow 2.6s ease-in-out infinite;
 }
 
-#finalWagerModal #submitWagers:hover {
+@media (hover: hover) and (pointer: fine) {
+  #finalWagerModal #submitWagers:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+}
+
+#finalWagerModal #submitWagers:active {
   background: #0056b3;
+  transform: scale(0.97);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.95);
+  animation: none;
 }
 
 /* Final Question Modal */
@@ -369,11 +620,26 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: background 0.25s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
+  animation: ctaGlow 2.6s ease-in-out infinite;
 }
 
-#finalQuestionModal #revealAnswersBtn:hover {
+@media (hover: hover) and (pointer: fine) {
+  #finalQuestionModal #revealAnswersBtn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+}
+
+#finalQuestionModal #revealAnswersBtn:active {
   background: #0056b3;
+  transform: scale(0.97);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.95);
+  animation: none;
 }
 
 /* Final Judging Modal */
@@ -396,8 +662,33 @@ body {
   padding: 10px 20px;
   font-size: 1em;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #finalJudgingModal button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+    filter: brightness(1.05);
+  }
+
+  #finalJudgingModal #correctBtn:hover {
+    background: #218838;
+  }
+
+  #finalJudgingModal #incorrectBtn:hover {
+    background: #c82333;
+  }
+}
+
+#finalJudgingModal button:active {
+  transform: scale(0.96);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.92);
 }
 
 #finalJudgingModal #correctBtn {
@@ -405,8 +696,8 @@ body {
   color: #fff;
 }
 
-#finalJudgingModal #correctBtn:hover {
-  background: #218838;
+#finalJudgingModal #correctBtn:active {
+  background: #1e7e34;
 }
 
 #finalJudgingModal #incorrectBtn {
@@ -414,8 +705,8 @@ body {
   color: #fff;
 }
 
-#finalJudgingModal #incorrectBtn:hover {
-  background: #c82333;
+#finalJudgingModal #incorrectBtn:active {
+  background: #a71d2a;
 }
 
 /* Winner Modal */
