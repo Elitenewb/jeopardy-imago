@@ -1,4 +1,34 @@
 document.addEventListener("DOMContentLoaded", function () {
+  function parseOptionalSeconds(value) {
+    if (value === undefined || value === null || value === "") {
+      return null;
+    }
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return null;
+    }
+
+    return Math.floor(parsed);
+  }
+
+  function buildYouTubeEmbedUrl(videoId, startSeconds, endSeconds) {
+    const baseUrl = `https://www.youtube.com/embed/${videoId}`;
+    const params = new URLSearchParams();
+    const start = parseOptionalSeconds(startSeconds);
+    const end = parseOptionalSeconds(endSeconds);
+
+    if (start !== null) {
+      params.set("start", String(start));
+    }
+    if (end !== null) {
+      params.set("end", String(end));
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  }
+
   var dropZone = document.getElementById("dropZone");
   var fileInput = document.getElementById("fileInput");
   var lastQuestionValue = 0;
@@ -162,7 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 questionVideo.style.display = "none";
               } else if (question.video) {
                 questionImage.style.display = "none";
-                questionVideo.src = `https://www.youtube.com/embed/${question.video}`;
+                questionVideo.src = buildYouTubeEmbedUrl(
+                  question.video,
+                  question.start,
+                  question.end
+                );
                 questionVideo.style.display = "block";
               } else {
                 questionImage.style.display = "none";
@@ -291,7 +325,11 @@ document.addEventListener("DOMContentLoaded", function () {
       finalVideo.style.display = "none";
     } else if (finalJeopardyQuestion.video) {
       finalImage.style.display = "none";
-      finalVideo.src = `https://www.youtube.com/embed/${finalJeopardyQuestion.video}`;
+      finalVideo.src = buildYouTubeEmbedUrl(
+        finalJeopardyQuestion.video,
+        finalJeopardyQuestion.start,
+        finalJeopardyQuestion.end
+      );
       finalVideo.style.display = "block";
     } else {
       finalImage.style.display = "none";
