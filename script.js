@@ -22,7 +22,12 @@ document.addEventListener("DOMContentLoaded", function () {
     params.set("rel", "0");
     params.set("modestbranding", "1");
     params.set("playsinline", "1");
-    if (window.location && window.location.origin) {
+    if (
+      window.location &&
+      window.location.origin &&
+      window.location.origin !== "null" &&
+      /^https?:$/.test(window.location.protocol)
+    ) {
       params.set("origin", window.location.origin);
     }
 
@@ -39,6 +44,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var questionPlayer = null;
   var finalPlayer = null;
+  var questionHideTimer = null;
+  var finalHideTimer = null;
+  var questionPlaybackToken = 0;
+  var finalPlaybackToken = 0;
 
   function createYouTubePlayer(iframeId, onEndedCallback) {
     return new Promise(function (resolve) {
@@ -78,6 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function clearHideTimer(timerRef) {
+    if (timerRef) {
+      clearTimeout(timerRef);
+    }
+    return null;
+  }
+
   function hideVideoIframe(iframe, afterHidden) {
     iframe.style.opacity = "0";
     setTimeout(function () {
@@ -103,17 +119,44 @@ document.addEventListener("DOMContentLoaded", function () {
     return opts;
   }
 
+  function scheduleHideFromEndWindow(
+    startSeconds,
+    endSeconds,
+    hideHandler,
+    storeTimer
+  ) {
+    var start = parseOptionalSeconds(startSeconds) || 0;
+    var end = parseOptionalSeconds(endSeconds);
+    if (end === null || end <= start) {
+      return;
+    }
+    var durationMs = (end - start) * 1000 + 250;
+    storeTimer(setTimeout(hideHandler, durationMs));
+  }
+
   function openQuestionVideo(videoId, startSeconds, endSeconds) {
     var iframe = document.getElementById("questionVideo");
     var textEl = document.getElementById("questionText");
     iframe.style.opacity = "1";
     iframe.style.display = "block";
 
+    questionPlaybackToken += 1;
+    var playbackToken = questionPlaybackToken;
+    questionHideTimer = clearHideTimer(questionHideTimer);
+
     function onVideoEnded() {
+      if (playbackToken !== questionPlaybackToken) return;
+      questionHideTimer = clearHideTimer(questionHideTimer);
       hideVideoIframe(iframe, function () {
         triggerQuestionTextFocus(textEl);
       });
     }
+
+    scheduleHideFromEndWindow(startSeconds, endSeconds, onVideoEnded, function (
+      timer
+    ) {
+      questionHideTimer = timer;
+    });
 
     if (
       questionPlayer &&
@@ -137,11 +180,23 @@ document.addEventListener("DOMContentLoaded", function () {
     iframe.style.opacity = "1";
     iframe.style.display = "block";
 
+    finalPlaybackToken += 1;
+    var playbackToken = finalPlaybackToken;
+    finalHideTimer = clearHideTimer(finalHideTimer);
+
     function onVideoEnded() {
+      if (playbackToken !== finalPlaybackToken) return;
+      finalHideTimer = clearHideTimer(finalHideTimer);
       hideVideoIframe(iframe, function () {
         triggerQuestionTextFocus(textEl);
       });
     }
+
+    scheduleHideFromEndWindow(startSeconds, endSeconds, onVideoEnded, function (
+      timer
+    ) {
+      finalHideTimer = timer;
+    });
 
     if (finalPlayer && typeof finalPlayer.loadVideoById === "function") {
       finalPlayer.loadVideoById(
@@ -467,6 +522,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.getElementById("revealAnswersBtn").onclick = function () {
+    finalPlaybackToken += 1;
+    finalHideTimer = clearHideTimer(finalHideTimer);
     safeStopPlayer(finalPlayer);
     var finalVideoEl = document.getElementById("finalQuestionVideo");
     if (finalVideoEl) {
@@ -575,6 +632,8 @@ document.addEventListener("DOMContentLoaded", function () {
       modal.dataset.questionUsed = "";
       checkAllQuestionsUsed();
     }
+    questionPlaybackToken += 1;
+    questionHideTimer = clearHideTimer(questionHideTimer);
     safeStopPlayer(questionPlayer);
     var questionVideoEl = document.getElementById("questionVideo");
     if (questionVideoEl) {
